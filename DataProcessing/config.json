@@ -1,3 +1,5 @@
 {
-    "data-folder": "../../../Data/"
+    "data-folder": "../../../Data/",
+
+    "dydx-indexer-api-rest": "https://indexer.dydx.trade/v4"
 }

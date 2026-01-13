@@ -14,7 +14,7 @@
 */
 
 using System;
-using System.IO;
+using System.Globalization;
 using QuantConnect.Configuration;
 using QuantConnect.Logging;
 using QuantConnect.Util;
@@ -34,20 +34,26 @@ namespace QuantConnect.DataProcessing
         {
             // Get the config values first before running. These values are set for us
             // automatically to the value set on the website when defining this data type
-            var destinationDirectory = Path.Combine(
-                Config.Get("temp-output-directory", "/temp-output-directory"),
-                "alternative",
-                "vendorname");
+            var destinationDirectory = Config.Get("temp-output-directory", "/temp-output-directory");
 
-            MyCustomDataDownloader instance = null;
+            var processingDateValue = Environment.GetEnvironmentVariable("QC_DATAFLEET_DEPLOYMENT_DATE");
+
+            DateTime? processingDate = null;
+            if (!string.IsNullOrEmpty(processingDateValue))
+            {
+                processingDate = DateTime.ParseExact(processingDateValue, "yyyyMMdd", CultureInfo.InvariantCulture);
+            }
+
+
+            dYdXFundingRateDownloader instance = null;
             try
             {
                 // Pass in the values we got from the configuration into the downloader/converter.
-                instance = new MyCustomDataDownloader(destinationDirectory);
+                instance = new dYdXFundingRateDownloader(destinationDirectory, processingDate);
             }
             catch (Exception err)
             {
-                Log.Error(err, $"QuantConnect.DataProcessing.Program.Main(): The downloader/converter for {MyCustomDataDownloader.VendorDataName} {MyCustomDataDownloader.VendorDataName} data failed to be constructed");
+                Log.Error(err, $"QuantConnect.DataProcessing.Program.Main(): The downloader/converter for {nameof(dYdXFundingRateDownloader)} data failed to be constructed");
                 Environment.Exit(1);
             }
 
@@ -59,13 +65,13 @@ namespace QuantConnect.DataProcessing
                 var success = instance.Run();
                 if (!success)
                 {
-                    Log.Error($"QuantConnect.DataProcessing.Program.Main(): Failed to download/process {MyCustomDataDownloader.VendorName} {MyCustomDataDownloader.VendorDataName} data");
+                    Log.Error($"QuantConnect.DataProcessing.Program.Main(): Failed to download/process {nameof(dYdXFundingRateDownloader)} data");
                     Environment.Exit(1);
                 }
             }
             catch (Exception err)
             {
-                Log.Error(err, $"QuantConnect.DataProcessing.Program.Main(): The downloader/converter for {MyCustomDataDownloader.VendorDataName} {MyCustomDataDownloader.VendorDataName} data exited unexpectedly");
+                Log.Error(err, $"QuantConnect.DataProcessing.Program.Main(): The downloader/converter for {nameof(dYdXFundingRateDownloader)} data exited unexpectedly");
                 Environment.Exit(1);
             }
             finally
@@ -73,7 +79,7 @@ namespace QuantConnect.DataProcessing
                 // Run cleanup of the downloader/converter once it has finished or crashed.
                 instance.DisposeSafely();
             }
-            
+
             // The downloader/converter was successful
             Environment.Exit(0);
         }
