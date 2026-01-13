@@ -27,4 +27,7 @@ jobs:
           shell: bash
           run: |
             # BuildDataProcessing
-            dotnet build ./DataProcessing/DataProcessing.csproj /p:Configuration=Release /v:quiet /p:WarningLevel=1
+            # Build
+            dotnet build /p:Configuration=Release /v:quiet /p:WarningLevel=1 Lean.DataSource.dYdXFundingRate.sln && \
+            # Run Tests
+            dotnet test ./DataProcessing.Tests/bin/Release/DataProcessing.Tests.dll

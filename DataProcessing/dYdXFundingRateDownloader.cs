@@ -66,6 +66,22 @@ public class dYdXFundingRateDownloader : IDisposable
         _perpetualMarkets = GetPerpetualMarkets();
     }
 
+    internal dYdXFundingRateDownloader(string destinationFolder, DateTime? deploymentDate, string ticker)
+    {
+        _deploymentDate = deploymentDate;
+        _destinationFolder = Path.Combine(destinationFolder, "cryptofuture", "dydx", "margin_interest");
+        _existingInDataFolder = Path.Combine(Globals.DataFolder, "cryptofuture", "dydx", "margin_interest");
+        var baseUrl = Config.Get("indexer-rest-api-base-url", "https://indexer.dydx.trade/v4");
+        _client = new HttpClient
+        {
+            BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/")
+        };
+
+        Directory.CreateDirectory(_destinationFolder);
+
+        _perpetualMarkets = [ticker];
+    }
+
     /// <summary>
     /// Runs the instance of the object.
     /// </summary>
@@ -86,7 +102,7 @@ public class dYdXFundingRateDownloader : IDisposable
                 var count = 0;
                 foreach (var fundingRate in marketFundingRate.Value)
                 {
-                    var fundingTime = Time.ParseDate(fundingRate.EffectiveAt);
+                    var fundingTime = fundingRate.EffectiveAt;
 
                     // Filter by deployment date if specified
                     if (_deploymentDate.HasValue && fundingTime.Date != _deploymentDate.Value.Date)
@@ -109,7 +125,7 @@ public class dYdXFundingRateDownloader : IDisposable
         {
             if (kvp.Value.Count > 0)
             {
-                SaveContentToFile(_destinationFolder, kvp.Key, kvp.Value);
+                SaveContentToFile(_destinationFolder, kvp.Key.Replace("-", ""), kvp.Value);
                 Log.Trace(
                     $"{nameof(dYdXFundingRateDownloader)}.{nameof(Run)}(): Saved {kvp.Value.Count} rates for {kvp.Key}");
             }
@@ -181,7 +197,8 @@ public class dYdXFundingRateDownloader : IDisposable
         }
 
         // everything
-        return Time.EachDay(new DateTime(2023, 10, 18), DateTime.UtcNow.Date);
+        // return Time.EachDay(new DateTime(2023, 10, 18), DateTime.UtcNow.Date);
+        return Time.EachDay(new DateTime(2026, 1, 11), DateTime.UtcNow.Date);
     }
 
     /// <summary>

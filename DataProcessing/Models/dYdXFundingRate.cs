@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+using System;
 using Newtonsoft.Json;
 
 namespace QuantConnect.DataProcessing.Models;
@@ -50,5 +51,5 @@ public class dYdXFundingRate
     /// Effective at timestamp
     /// </summary>
     [JsonProperty("effectiveAt")]
-    public string EffectiveAt { get; set; }
+    public DateTime EffectiveAt { get; set; }
 }
