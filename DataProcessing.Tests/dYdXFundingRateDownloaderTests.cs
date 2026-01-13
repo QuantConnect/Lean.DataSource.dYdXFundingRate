@@ -36,7 +36,7 @@ public class Tests
 
             // Test with three dates from the fixture file: 2026-01-11, 2026-01-12, 2026-01-13
             var deploymentDate = new DateTime(2026, 1, 10);
-            using var downloader = new dYdXFundingRateDownloader(tempFolder, deploymentDate, "BTC-USD");
+            using var downloader = new TestdYdXFundingRateDownloader(tempFolder, deploymentDate);
             downloader.Run();
 
             // Verify output file exists

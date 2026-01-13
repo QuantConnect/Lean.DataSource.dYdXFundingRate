@@ -66,22 +66,6 @@ public class dYdXFundingRateDownloader : IDisposable
         _perpetualMarkets = GetPerpetualMarkets();
     }
 
-    internal dYdXFundingRateDownloader(string destinationFolder, DateTime? deploymentDate, string ticker)
-    {
-        _deploymentDate = deploymentDate;
-        _destinationFolder = Path.Combine(destinationFolder, "cryptofuture", "dydx", "margin_interest");
-        _existingInDataFolder = Path.Combine(Globals.DataFolder, "cryptofuture", "dydx", "margin_interest");
-        var baseUrl = Config.Get("indexer-rest-api-base-url", "https://indexer.dydx.trade/v4");
-        _client = new HttpClient
-        {
-            BaseAddress = new Uri(baseUrl.TrimEnd('/') + "/")
-        };
-
-        Directory.CreateDirectory(_destinationFolder);
-
-        _perpetualMarkets = [ticker];
-    }
-
     /// <summary>
     /// Runs the instance of the object.
     /// </summary>
@@ -167,7 +151,7 @@ public class dYdXFundingRateDownloader : IDisposable
         return result;
     }
 
-    private string[] GetPerpetualMarkets()
+    protected virtual string[] GetPerpetualMarkets()
     {
         try
         {
