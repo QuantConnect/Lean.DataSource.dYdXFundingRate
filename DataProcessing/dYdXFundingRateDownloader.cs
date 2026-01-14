@@ -43,7 +43,7 @@ public class dYdXFundingRateDownloader : IDisposable
     /// </summary>
     private readonly RateGate _indexGate = new(25, TimeSpan.FromSeconds(10));
 
-    private readonly string[] _perpetualMarkets;
+    private string[] PerpetualMarkets => field ??= GetPerpetualMarkets();
 
     /// <summary>
     /// Creates a new instance of <see cref="DYdXFundingRateDownloader"/>
@@ -62,8 +62,6 @@ public class dYdXFundingRateDownloader : IDisposable
         };
 
         Directory.CreateDirectory(_destinationFolder);
-
-        _perpetualMarkets = GetPerpetualMarkets();
     }
 
     /// <summary>
@@ -125,7 +123,7 @@ public class dYdXFundingRateDownloader : IDisposable
 
         var result = new ConcurrentDictionary<string, dYdXFundingRate[]>();
 
-        Parallel.ForEach(_perpetualMarkets, ticker =>
+        Parallel.ForEach(PerpetualMarkets, ticker =>
         {
             _indexGate.WaitToProceed();
             var url = $"historicalFunding/{ticker}?limit=24&effectiveBeforeOrAt={end:yyyy-MM-ddTHH:mm:ssZ}";
@@ -181,8 +179,7 @@ public class dYdXFundingRateDownloader : IDisposable
         }
 
         // everything
-        // return Time.EachDay(new DateTime(2023, 10, 18), DateTime.UtcNow.Date);
-        return Time.EachDay(new DateTime(2026, 1, 11), DateTime.UtcNow.Date);
+        return Time.EachDay(new DateTime(2023, 10, 18), DateTime.UtcNow.Date);
     }
 
     /// <summary>
